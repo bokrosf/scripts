@@ -1,0 +1,7 @@
+usage: change_keyboard
+  or:  change_keyboard -h | --help
+
+  Switches to the next available keyboard layout.
+
+  options:
+    -h, --help:    displays help
