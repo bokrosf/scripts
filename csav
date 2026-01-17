@@ -6,6 +6,63 @@ readonly repository_name="configs"
 readonly repository_url="https://github.com/bokrosf/$repository_name"
 readonly jump_terminal_command='alacritty --working-directory "$(config_root_path)" &'
 
+main()
+{
+  if [[ -z $config_checkout_path ]]
+  then
+    print_error "'config_checkout_path' variable must be set."
+    exit 1
+  fi
+
+  if [[ -z $repository_name ]]
+  then
+    print_error "'repository_name' variable must be set."
+    exit 1
+  fi
+
+  if [[ -z $repository_url ]]
+    then
+    print_error "'repository_url' variable must be set."
+    exit 1
+  fi
+
+  readonly command="$1"
+
+  case "$command" in
+    help \
+    | -h \
+    | --help)
+      help
+      ;;
+    init \
+    | list \
+    | add \
+    | mv \
+    | rm \
+    | apply \
+    | backup \
+    | restoreall \
+    | jump)
+      shift
+      $command "$@"
+      ;;
+    restore \
+    | commit \
+    | pull \
+    | push \
+    | status \
+    | diff )
+      access_config_git "$@"
+      ;;
+    "")
+      print_error "no operation specified (use 'help' for help)"
+      ;;
+    *)
+      print_error "invalid operation -- '$1'"
+      ;;
+  esac
+}
+
 print_error()
 {
   echo "csav: $1"
@@ -217,56 +274,4 @@ jump()
   eval "$jump_terminal_command"
 }
 
-if [[ -z $config_checkout_path ]]
-then
-  print_error "'config_checkout_path' variable must be set."
-  exit 1
-fi
-
-if [[ -z $repository_name ]]
-then
-  print_error "'repository_name' variable must be set."
-  exit 1
-fi
-
-if [[ -z $repository_url ]]
-then
-  print_error "'repository_url' variable must be set."
-  exit 1
-fi
-
-readonly command="$1"
-
-case "$command" in
-  help \
-  | -h \
-  | --help)
-    help
-    ;;
-  init \
-  | list \
-  | add \
-  | mv \
-  | rm \
-  | apply \
-  | backup \
-  | restoreall \
-  | jump)
-    shift
-    $command "$@"
-    ;;
-  restore \
-  | commit \
-  | pull \
-  | push \
-  | status \
-  | diff )
-    access_config_git "$@"
-    ;;
-  "")
-    print_error "no operation specified (use 'help' for help)"
-    ;;
-  *)
-    print_error "invalid operation -- '$1'"
-    ;;
-esac
+main "$@"
