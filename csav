@@ -73,15 +73,6 @@ config_root_path()
   echo "$config_checkout_path/$repository_name"
 }
 
-require_root_privilege()
-{
-  if [[ $(id -u) -ne 0 ]]
-  then
-    print_error "must be superuser to perform this operation."
-    exit 1
-  fi
-}
-
 require_initialization()
 {
   if [[ ! -d $(config_root_path)/.git ]]
@@ -109,9 +100,6 @@ help()
 
 init()
 {
-  require_root_privilege
-
-  # Obtaining the repository.
   if [[ -d $(config_root_path)/.git ]]
   then
     echo "Already initialized."
@@ -134,32 +122,6 @@ init()
     print_error "repository cloning failed -- '$repository_url'"
     exit 1
   fi
-
-  # Setting privileges of files and directories.
-  owner_user_name="$SUDO_USER"
-
-  if [[ -z $owner_user_name ]]
-  then
-    owner_user_name="$USER"
-  fi
-
-  chown -R "$owner_user_name": "$(config_root_path)"
-  cd "$(config_root_path)"
-
-  for root_item in $(ls -A | grep -v -e '.git' -e 'README.md' -e 'home')
-  do
-    chown -R root: "$root_item"
-  done
-
-  if [[ -e home ]]
-  then
-    chown root: home
-  fi
-
-  for user_name in $(ls -A home)
-  do
-    chown -R "$user_name": "home/$user_name"
-  done
 
   echo "initialized"
 }
