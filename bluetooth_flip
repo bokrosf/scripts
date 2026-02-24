@@ -1,6 +1,6 @@
 #/bin/bash
 
-status=$(bluetoothctl show | grep PowerState)
+status=$(echo show | bluetoothctl | grep PowerState)
 
 if [[ $status =~ .*on$ ]]
 then
